@@ -1,99 +1,314 @@
-<<<<<<< HEAD
-# No-Buy
+# NO-BUY – Peer-to-Peer Rental Marketplace
 
-No-Buy is a peer-to-peer equipment rental app for the Indian market. All listing rates, deposits, and simulated payments are in Indian rupees (INR). The frontend is React + Vite, the API is Flask, and persistent application data is stored in MySQL (`nobuy_db`). Payments are simulated for the project; this app does not process real payments.
+**Rent What You Need. Earn From What You Own.**
 
-## Requirements
+No-Buy is a peer-to-peer equipment rental platform designed for the Indian market. It connects people who own equipment with people who need it temporarily, allowing users to rent products instead of purchasing them.
 
-- MySQL Server 8.x (Workbench is the GUI client; it does not install or run the server by itself)
-- Python 3.10 or later with `pip`
-- Node.js with `npm`
-- MySQL Workbench, for the manual setup and database inspection below
+The platform provides a unified marketplace where anyone can both list their own products for rent and rent products from other users. It aims to make equipment sharing more accessible, affordable, and convenient through location-based discovery, rental management, price negotiation, and simulated payment processing.
 
-## Start MySQL Server
+---
 
-Install **MySQL Server** with the MySQL Installer and configure it to run as a Windows service. Keep the port at `3306` unless you change `MYSQL_PORT` in `backend/.env`.
+## ✨ Key Features
 
-Open Workbench and connect to the local server using host `127.0.0.1`, port `3306`, and the MySQL account/password you created during installation. If Workbench cannot connect, start the Windows service named `MySQL80` from Windows Services (`services.msc`). The included `start_mysql.bat` and `stop_mysql.bat` scripts use that service name; edit `MYSQL_SERVICE_NAME` in those two files if your installer used a different name.
+- **User Authentication:** Secure registration, login, and JWT-based authentication.
+- **Dual User Functionality:** Every user can act as both a renter and a product owner using a single account.
+- **Product Listings:** List equipment with descriptions, categories, rental prices, security deposits, condition, location, and images.
+- **Product Discovery:** Browse and explore available rental products across different categories.
+- **Location-Based Marketplace:** Discover products based on their listed locations, making nearby rentals easier.
+- **Booking Management:** Send rental requests, approve or reject requests, and manage rental status.
+- **Price Negotiation:** Allow renters and product owners to negotiate rental prices through offers and counter-offers.
+- **Simulated Payments:** Checkout with simulated Card, UPI, Net Banking, and Wallet payment options.
+- **Security Deposit Management:** Track deposits through a simulated escrow workflow, including release and refund outcomes.
+- **Return Management:** Manage product returns, inspect item conditions, and calculate applicable damage fees and deposit refunds.
+- **Reviews & Ratings:** Allow users to share feedback after completed rentals.
+- **Dashboard:** Manage listings, rental requests, bookings, negotiations, payments, and account activity.
+- **Notifications:** Receive updates about bookings, negotiations, payments, and other platform activities.
 
-## Set up the database in Workbench
+---
 
-1. In Workbench, connect to your local MySQL Server and open a new SQL tab.
-2. Create the database and an app account. Replace the sample password with a private password of your choice:
+## 🛠️ Technology Stack
 
-   ```sql
-   CREATE DATABASE IF NOT EXISTS nobuy_db
-     CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+| Layer | Technologies |
+|---|---|
+| Frontend | React.js, Vite, JavaScript |
+| Backend | Python, Flask |
+| Database | MySQL |
+| Authentication | JWT (JSON Web Tokens) |
+| API Communication | REST APIs |
+| Styling | CSS |
+| Development Tools | VS Code, MySQL Workbench, Git, GitHub |
 
-   CREATE USER IF NOT EXISTS 'nobuy_app'@'127.0.0.1'
-     IDENTIFIED BY 'choose_a_local_password';
+---
 
-   GRANT ALL PRIVILEGES ON nobuy_db.* TO 'nobuy_app'@'127.0.0.1';
-   ```
+## 🏗️ System Architecture
 
-3. Run the SQL tab with the lightning-bolt button. The app account has privileges only inside `nobuy_db`.
-4. In Workbench, open `backend/schema.sql` (File → Open SQL Script) and run it. This creates the eight tables and their foreign keys. You can also let `init_db.py` create the tables in step 6 below.
-5. Copy `backend/.env.example` to `backend/.env`. Set `MYSQL_PASSWORD` to the same password used for `nobuy_app`. Keep the host, port, and database values as shown if you used the defaults. Do not commit `backend/.env`.
-6. Open a terminal in the project folder and initialize the schema:
+No-Buy follows a client-server architecture.
 
-   ```powershell
-   cd backend
-   python -m pip install -r requirements.txt
-   python init_db.py
-   ```
+1. **Frontend:** React provides the user interface and communicates with the backend through API requests.
+2. **Backend:** Flask handles business logic, authentication, product management, bookings, negotiations, and other application operations.
+3. **Database:** MySQL stores persistent application data, including users, products, bookings, payments, and reviews.
 
-   The initializer creates `nobuy_db` if it is missing (so the configured account needs permission to create it in that case), creates missing tables, and leaves existing records intact. Creating the database in Workbench first avoids needing a global `CREATE DATABASE` privilege.
+The frontend and backend communicate through RESTful APIs, while the backend interacts with MySQL using a database connection pool.
 
-7. In Workbench, run these checks. You should see eight tables, and initially zero users/products unless you opted into sample data:
+---
 
-   ```sql
-   USE nobuy_db;
-   SHOW TABLES;
-   SELECT COUNT(*) AS users FROM users;
-   SELECT COUNT(*) AS products FROM products;
-   ```
+## 📦 Project Modules
 
-## Run the application
+The application is divided into nine major backend modules:
 
-From the project root, double-click `start_all.bat`. Or start each process in a separate terminal:
+| Module | Description |
+|---|---|
+| Authentication | Registration, login, and user authentication |
+| Products | Product listing, browsing, updating, and image uploads |
+| Bookings | Rental requests and booking status management |
+| Negotiations | Rental price offers and counter-offers |
+| Payments | Simulated checkout and escrow management |
+| Returns | Product return requests and inspection |
+| Reviews | Ratings and feedback management |
+| Dashboard | User activity and rental management |
+| Notifications | In-app alerts and activity updates |
 
-```powershell
-# Terminal 1: project root
-call .\start_mysql.bat
+---
 
-# Terminal 2: backend
+## 🗄️ Database Design
+
+The project uses **MySQL** as its relational database management system.
+
+The database is named `nobuy_db` and contains eight primary tables:
+
+| Table | Purpose |
+|---|---|
+| users | Stores user accounts and profile information |
+| products | Stores product listings and rental details |
+| bookings | Stores rental requests and booking information |
+| negotiations | Stores rental offers and counter-offers |
+| payments | Stores simulated payment and escrow records |
+| returns | Stores return inspections and deposit outcomes |
+| reviews | Stores ratings and user feedback |
+| notifications | Stores in-app notifications |
+
+The database uses foreign keys, indexes, and relational constraints to maintain data integrity.
+
+The database schema is available in `backend/schema.sql`.
+
+---
+
+## 📁 Project Structure
+
+```text
+NoBuy-Final/
+│
+├── backend/
+│   ├── routes/
+│   │   ├── auth.py
+│   │   ├── products.py
+│   │   ├── bookings.py
+│   │   ├── negotiations.py
+│   │   ├── payments.py
+│   │   ├── returns.py
+│   │   ├── reviews.py
+│   │   ├── dashboard.py
+│   │   └── notifications.py
+│   │
+│   ├── utils/
+│   ├── uploads/
+│   ├── app.py
+│   ├── config.py
+│   ├── db.py
+│   ├── init_db.py
+│   ├── schema.sql
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   ├── index.html
+│   └── package.json
+│
+└── README.md
+```
+
+---
+
+## ⚙️ Installation & Setup
+
+Follow these instructions to run the project locally.
+
+### 1. Prerequisites
+
+Make sure the following software is installed:
+
+- Python 3.10 or later
+- Node.js and npm
+- MySQL Server 8.x
+- MySQL Workbench
+- Git
+
+### 2. Clone the Repository
+
+```bash
+git clone https://github.com/TatvikBhandari/NoBuy-Final.git
+```
+
+Navigate to the project directory:
+
+```bash
+cd NoBuy-Final
+```
+
+### 3. Configure MySQL Database
+
+Open MySQL Workbench and connect to your local MySQL server.
+
+Execute the following SQL commands:
+
+```sql
+CREATE DATABASE nobuy_db
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_general_ci;
+```
+
+Make sure your MySQL server is running before starting the backend.
+
+### 4. Configure Backend Environment
+
+Navigate to the backend directory:
+
+```bash
 cd backend
-python app.py
+```
 
-# Terminal 3: frontend
+Install the required Python dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Create a `.env` file inside the `backend` directory with the following configuration:
+
+```env
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=your_mysql_password
+MYSQL_DB=nobuy_db
+MYSQL_COLLATION=utf8mb4_general_ci
+
+JWT_SECRET_KEY=your_secure_jwt_secret
+SECRET_KEY=your_secure_flask_secret
+
+JWT_ACCESS_TOKEN_EXPIRES_HOURS=72
+```
+
+Replace `your_mysql_password` with your actual MySQL password.
+
+**Important:** Never upload your `.env` file or expose database credentials on GitHub.
+
+### 5. Initialize the Database
+
+From the `backend` directory, execute:
+
+```bash
+python init_db.py
+```
+
+This initializes the database schema and creates the required tables.
+
+### 6. Start the Backend Server
+
+Run:
+
+```bash
+python app.py
+```
+
+The Flask backend will run at:
+
+```text
+http://127.0.0.1:5000
+```
+
+You can check the backend and database connection using:
+
+```text
+http://127.0.0.1:5000/api/health
+```
+
+### 7. Start the Frontend
+
+Open another terminal and navigate to the frontend directory:
+
+```bash
 cd frontend
+```
+
+Install dependencies:
+
+```bash
 npm install
+```
+
+Start the Vite development server:
+
+```bash
 npm run dev
 ```
 
-Open <http://localhost:5173>. Check <http://127.0.0.1:5000/api/health>; a working response includes `"database_status":"connected"`. A disconnected database now returns HTTP 503.
+Open the application in your browser:
 
-Create an account in the app, then list a product. Products, users, categories, bookings, negotiations, payments, returns, reviews, and notifications are read from or written to MySQL through the Flask API. A new database is empty by default. To load the included fictional sample records for a demonstration, set `SEED_DEMO_DATA=true` in `backend/.env` **before the first initialization**. Seeding runs only when the users table is empty; the demo login buttons were removed, so use the sample credentials listed in `backend/init_db.py` if you enable it.
+```text
+http://localhost:5173
+```
 
-## Product photo upload and storage
+---
 
-When a lender chooses a photo, the browser sends the file as `multipart/form-data` to the authenticated `POST /api/products/upload` endpoint. The Flask API accepts JPEG, PNG, GIF, or WebP files up to 5 MB, validates the file signature, and saves the bytes under `backend/uploads/` with a generated filename. The listing request then stores a relative URL such as `/api/products/uploads/abc123.jpg` in `products.image_url`.
+## 💳 Payment Disclaimer
 
-The image bytes themselves are **not** stored in MySQL. MySQL stores the URL/path; Flask serves the image from `backend/uploads/` when the browser requests that URL. This keeps normal catalog queries small and avoids large BLOB values. Back up `backend/uploads/` along with the database. If you deploy to multiple servers or ephemeral hosting, move uploads to shared object storage and keep the resulting URL in `image_url`.
+No-Buy implements a simulated payment system for demonstration and academic purposes.
 
-## Database overview
+It does not integrate with real payment gateways or process actual financial transactions. Payment records, transaction IDs, and escrow statuses are generated and maintained within the application.
 
-- `users`: account/profile data
-- `products`: listings and image paths
-- `bookings`: rental requests and state
-- `negotiations`: renter/owner offers
-- `payments`: simulated transactions and escrow state
-- `returns`: return inspections and deposit outcomes
-- `reviews`: completed-rental feedback
-- `notifications`: in-app activity alerts
+---
 
-`backend/schema.sql` is the schema source. It uses InnoDB, `utf8mb4`, foreign keys, and indexes. Re-run `python init_db.py` after starting MySQL if the API health check reports a database connection failure.
-=======
-# NoBuy
-UCS503 Software Engineering project. NoBuy- a platform to rent or borrow things.
->>>>>>> b90becccb2592012d599f61e1c1ec22516473dd6
+## 🔒 Security
+
+- JWT-based authentication.
+- Password hashing.
+- Protected API endpoints.
+- User-specific authorization checks.
+- Relational database constraints.
+- Environment-based configuration for sensitive credentials.
+
+---
+
+## 🎯 Project Objective
+
+The primary objective of No-Buy is to encourage a rental-based approach to equipment usage rather than unnecessary ownership.
+
+The platform provides a digital marketplace that allows users to access equipment when required, generate income from unused products, and manage the complete rental lifecycle through a single application.
+
+---
+
+## 🚀 Future Enhancements
+
+- Integration with real payment gateways.
+- Real-time chat between renters and product owners.
+- Advanced location-based search and map integration.
+- Email and SMS notifications.
+- Cloud-based image storage.
+- Advanced analytics and rental insights.
+
+---
+
+## 👨‍💻 Project Information
+
+**Project Name:** No-Buy  
+**Project Type:** Peer-to-Peer Rental Marketplace  
+**Course:** UCS503 – Software Engineering  
+**Repository:** [NoBuy-Final](https://github.com/TatvikBhandari/NoBuy-Final)
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
